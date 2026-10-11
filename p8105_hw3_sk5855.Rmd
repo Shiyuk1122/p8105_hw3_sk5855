@@ -15,7 +15,7 @@ glimpse(ny_noaa)
 colSums(is.na(ny_noaa))
 colMeans(is.na(ny_noaa)) * 100
 ```
-The ny_noaa dataset depicts the weather of a certain area from 1981 to 2010. There are 7 variables and 2595176 rows of dataset. "date" is the date of a weather record. "prcp" is the precipitation on this day.
+The ny_noaa dataset depicts the weather of each stations from 1981 to 2010. There are 7 variables and 2595176 rows of dataset. "date" is the date of a weather record. "prcp" is the precipitation on this day.
 "snow" and "snwd" describe the snow amount and depth on this certain day. "tmax" and "tmin" are the max and min temperature of the day, respectively.
 Missing data are a substantial concern in this dataset, particularly for temperature: approximately 43.71% of observations are missing for each of tmax and tmin. Missingness is also present in snwd (22.80%), snow (14.69%), and prcp (5.62%), while id and date have no missing values. These missing values reduce the available data for analysis and may introduce bias if missingness varies systematically across stations or time periods
 
@@ -35,10 +35,68 @@ ny_noaa_clean |>
   filter(!is.na(snow)) |>
   count(snow)
 ```
-0 is the most frequent number of snowfall. Because in this area, most days of the year are not snowing.
+0 is the most frequent number of snowfall. Because in the observed areas, most days of the year are not snowing.
 
-```{r problem 2 question 2}
+```{r problem 1 question 2}
+temp_summary = ny_noaa_clean |>
+  filter(month == 1| month == 7) |>
+  group_by(id, month, year) |>
+  summarise(
+    mean_tmax = mean(tmax, na.rm = TRUE)
+  )
 
+temp_summary |>
+  filter(!is.na(mean_tmax)) |>
+    mutate(
+    month = factor(
+      month,
+      levels = c(1, 7),
+      labels = c("January", "July")
+    )
+  ) |> 
+  ggplot(aes(x = year, y = mean_tmax, group = id)) + 
+  geom_line(alpha = 0.2) +
+  facet_grid(. ~ month) +
+  labs(
+    x = "Year",
+    y =  "Highest temperature of the day" 
+  ) +
+  theme_minimal()
+```
+The plot shows year-to-year fluctuations in average maximum temperature. There are repeated rises and falls, there seems to have a regular rise-fall pattern over 4 to 5 years. A potential outlier appears in July around 1988.
+
+
+```{r problem 1 question 3}
+#(i)
+p1 = ny_noaa_clean |>
+  filter(!is.na(tmax),!is.na(tmin)) |>
+  ggplot(aes(x = tmin, y = tmax)) +
+  geom_bin_2d() +
+  labs(
+    x = "Minimum temperature (°C)",
+    y = "Maximum temperature (°C)",
+    fill = "Count"
+  ) +
+  theme_minimal()
+
+p2 = ny_noaa_clean |>
+  filter(snow > 0, snow < 100) |>
+  ggplot(aes(x = factor(year), y = snow)) +
+  geom_boxplot() +
+  labs(
+    x = "Year",
+    y = "Snowfall"
+  ) +
+  theme_minimal() +
+  theme(
+  axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)
+)
+
+library(patchwork)
+p1 + p2
 ```
 
+```{r problem 2}
+
+```
 
