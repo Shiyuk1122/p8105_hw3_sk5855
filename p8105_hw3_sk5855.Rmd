@@ -97,6 +97,35 @@ p1 + p2
 ```
 
 ```{r problem 2}
+accel_df = read_csv(
+  file = "nhanes_accel.csv",
+  na = c("",".","NA") 
+) |>
+  janitor::clean_names()
 
+covar_df = read_csv(
+  file = "nhanes_covar.csv",
+  na = c("",".","NA"),
+  skip = 4
+) |>
+  janitor::clean_names() |>
+  mutate(
+    sex = case_when(
+      sex == 1 ~ "male",
+      sex == 2 ~ "female",
+      TRUE ~ NA_character_
+    ),
+    education = case_when(
+      education == 1 ~ "less than high school",
+      education == 2 ~ "High school equivalent",
+      education == 3 ~ "More than high school",
+      TRUE ~ NA_character_
+    )
+    ) |>
+  filter(age >= 21) |>
+  drop_na(bmi, education, age)
+
+nhanes_df = covar_df |>
+  left_join(accel_df, by = "seqn")
 ```
 
