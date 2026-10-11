@@ -3,9 +3,42 @@ title: "p8105_hw3_sk5855"
 author: "Shiyu KANG"
 date: "2026-10-11"
 output: github_document
+editor_options: 
+  chunk_output_type: console
 ---
 
-```{r}
+```{r problem 1}
+library(tidyverse)
+library(p8105.datasets)
+data("ny_noaa")
+glimpse(ny_noaa)
+colSums(is.na(ny_noaa))
+colMeans(is.na(ny_noaa)) * 100
+```
+The ny_noaa dataset depicts the weather of a certain area from 1981 to 2010. There are 7 variables and 2595176 rows of dataset. "date" is the date of a weather record. "prcp" is the precipitation on this day.
+"snow" and "snwd" describe the snow amount and depth on this certain day. "tmax" and "tmin" are the max and min temperature of the day, respectively.
+Missing data are a substantial concern in this dataset, particularly for temperature: approximately 43.71% of observations are missing for each of tmax and tmin. Missingness is also present in snwd (22.80%), snow (14.69%), and prcp (5.62%), while id and date have no missing values. These missing values reduce the available data for analysis and may introduce bias if missingness varies systematically across stations or time periods
+
+```{r problem 1 question 1}
+ny_noaa_clean = ny_noaa |>
+  janitor::clean_names() |>
+  mutate(
+    year = lubridate::year(date),
+    month = lubridate::month(date),
+    day = lubridate::day(date),
+    tmax = as.numeric(tmax)/10,
+    tmin = as.numeric(tmin)/10,
+    prcp = prcp/10
+  ) 
+
+ny_noaa_clean |>
+  filter(!is.na(snow)) |>
+  count(snow)
+```
+0 is the most frequent number of snowfall. Because in this area, most days of the year are not snowing.
+
+```{r problem 2 question 2}
 
 ```
+
 
