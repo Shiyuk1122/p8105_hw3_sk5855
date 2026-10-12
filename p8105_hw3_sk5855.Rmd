@@ -97,6 +97,7 @@ p1 + p2
 ```
 
 ```{r problem 2}
+#load and merge dataset
 accel_df = read_csv(
   file = "nhanes_accel.csv",
   na = c("",".","NA") 
@@ -127,5 +128,84 @@ covar_df = read_csv(
 
 nhanes_df = covar_df |>
   left_join(accel_df, by = "seqn")
+
+#create table
+nhanes_df |>
+  count(sex, education) |>
+  pivot_wider(
+    names_from = sex,
+    values_from = n
+  ) |>
+  knitr::kable(
+    caption = "Number of participants by education and sex"
+  )
+
+nhanes_df |>
+  ggplot(aes(x = sex, y = age, fill = sex)) +
+  geom_boxplot() +
+  facet_grid(.~education) +
+  labs(
+    x = "Sex",
+    y = "Age",
+    title = "Age distributions by sex and education"
+  ) +
+  theme_minimal()
+```
+Among male and female participants, more than high school is the category with most people, which have 59 and 56 individuals respectively. The number of men who has high school equivalent diploma is dramatically greater than women. For distributions, high school equivalent participants category has a remarkable difference for female and male, in which male has a much lower median age in this category. For the other two education levels, the distributions of sex are similar generally.
+
+```{r problem 2}
+#plot of total activity
+nhanes_df |>
+  mutate(
+    total_activity = rowSums(across(min1:min1440), na.rm = TRUE)
+  ) |>
+  ggplot(aes(x = age, y = total_activity, color = sex)) +
+  geom_point(alpha = 0.5) +
+  facet_grid(.~education) +
+  geom_smooth(se = FALSE) +
+  labs(
+    x = "age",
+    y = "Total Activity",
+    title = "Total Activity vs. Age across different education levels"
+  ) +
+  theme_minimal()
+```
+Total daily activity generally decreases with age across all three education categories. Men tend to have lower activity levels than women in the less than high school and more than high school groups. The more than high school group shows the slowest decline in activity with age.
+
+```{r problem 2}
+#plot of 24 hour activity
+activity_long = nhanes_df |>
+    pivot_longer(
+      cols = min1:min1440,
+      names_to = "minute",
+      names_prefix = "min",
+      names_transform = list(minute = as.integer),
+      values_to = "activity",
+    )
+
+activity_avg = activity_long |>
+  group_by(education, sex, minute) |>
+  summarise(
+    mean_activity = mean(activity)
+  )
+
+activity_avg |>
+  ggplot(aes(x = minute/60, y = mean_activity, color = sex)) +
+  geom_point(alpha = 0.4) +
+  facet_grid(.~education) + 
+  geom_smooth(se = FALSE, linewidth = 1.5) +
+  labs(
+    x = "Hour",
+    y = "Mean Activity",
+    title = "24-hour activity time courses"
+  ) +
+  theme_minimal()
+```
+
+Across all three education levels, daily activity follows a similar pattern. Activity levels are lowest during the early morning hours (around 3–5 AM), increase rapidly after 6 AM, and remain relatively high throughout the daytime before declining in the evening.
+Females generally exhibit slightly higher activity levels than males during the day, particularly among individuals with a high school education or less. The less than high school group shows the highest morning activity peak, while the more than high school group maintains relatively stable activity levels throughout the daytime.
+
+```{r problem 3}
+
 ```
 
