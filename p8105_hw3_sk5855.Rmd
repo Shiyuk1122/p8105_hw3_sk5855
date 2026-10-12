@@ -124,7 +124,7 @@ covar_df = read_csv(
       TRUE ~ NA_character_
     ),
     education = case_when(
-      education == 1 ~ "less than high school",
+      education == 1 ~ "Less than high school",
       education == 2 ~ "High school equivalent",
       education == 3 ~ "More than high school",
       TRUE ~ NA_character_
