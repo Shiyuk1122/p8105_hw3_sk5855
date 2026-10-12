@@ -206,6 +206,49 @@ Across all three education levels, daily activity follows a similar pattern. Act
 Females generally exhibit slightly higher activity levels than males during the day, particularly among individuals with a high school education or less. The less than high school group shows the highest morning activity peak, while the more than high school group maintains relatively stable activity levels throughout the daytime.
 
 ```{r problem 3}
+Jan2024_df = read_csv(
+  file = "Jan 2024 Citi.csv",
+  na = c("",".","NA")
+) |>
+  janitor::clean_names() 
 
+Jan2020_df = read_csv(
+  file = "Jan 2020 Citi.csv",
+  na = c("",".","NA")
+) |>
+  janitor::clean_names() 
+
+July2020_df = read_csv(
+  file = "July 2020 Citi.csv",
+  na = c("",".","NA")
+) |>
+  janitor::clean_names() 
+
+July2024_df = read_csv(
+  file = "July 2024 Citi.csv",
+  na = c("",".","NA")
+) |>
+  janitor::clean_names() 
+
+citibike_df = bind_rows(
+  Jan2020_df |> mutate(year = 2020, month = "January"),
+  July2020_df |> mutate(year = 2020, month = "July"),
+  Jan2024_df |> mutate(year = 2024, month = "January"),
+  July2024_df |> mutate(year = 2024, month = "July")
+)
+
+#table of rides separating riders
+citibike_df |>
+  group_by(year, month, member_casual) |>
+  summarise(
+    ride_count = n(), 
+    .groups = "drop"
+  ) |>
+  pivot_wider(
+    names_from = member_casual,
+    values_from = ride_count
+  ) 
+
+#5 most popular starting stations for July 2024
 ```
 
