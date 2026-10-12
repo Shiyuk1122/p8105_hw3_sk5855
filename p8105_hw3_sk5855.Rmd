@@ -299,6 +299,18 @@ plot_1 = citibike_median |>
 Median ride duration is consistently higher in July than in January across both years. Rides also tend to be longer on weekends than on weekdays, particularly in 2020. Overall, median ride duration decreased from 2020 to 2024, with a more substantial decline in July. Additionally, the gap between January and July narrowed considerably in 2024, suggesting a reduction in seasonal differences in ride duration.
 
 ```{r problem 3}
-
+citibike_df |>
+  filter(year == 2024) |>
+  ggplot(aes(x = month, y = duration, color = member_casual)) +
+  geom_boxplot(outlier.alpha = 0.5) +
+  facet_grid(.~rideable_type) +
+  labs(
+    x = "Month",
+    y = "Duration",
+    color = "Member Type",
+    title = "Impact of month, membership status, and bike type(2024)"
+  ) +
+  theme_minimal()
 ```
 
+Across both months and bike types, casual riders generally have longer median ride durations than Citi Bike members. This difference is particularly pronounced for classic bikes. Ride durations also tend to be longer in July than in January, although the magnitude of this difference varies across groups. Casual riders using classic bikes generally have longer rides than those using electric bikes, while the difference between bike types is smaller among members. Additionally, ride duration distributions are right-skewed, with numerous high-duration outliers across all groups.
