@@ -1,15 +1,19 @@
 ---
 title: "p8105_hw3_sk5855"
 author: "Shiyu KANG"
-date: "2026-10-11"
+date: "2026-10-12"
 output: github_document
 editor_options: 
   chunk_output_type: console
 ---
 
-```{r problem 1}
+```{r setup, message=FALSE}
 library(tidyverse)
 library(p8105.datasets)
+```
+
+
+```{r problem 1}
 data("ny_noaa")
 glimpse(ny_noaa)
 colSums(is.na(ny_noaa))
@@ -20,6 +24,7 @@ The ny_noaa dataset depicts the weather of each stations from 1981 to 2010. Ther
 Missing data are a substantial concern in this dataset, particularly for temperature: approximately 43.71% of observations are missing for each of tmax and tmin. Missingness is also present in snwd (22.80%), snow (14.69%), and prcp (5.62%), while id and date have no missing values. These missing values reduce the available data for analysis and may introduce bias if missingness varies systematically across stations or time periods
 
 ```{r problem 1 question 1}
+#problem 1 question 1
 ny_noaa_clean = ny_noaa |>
   janitor::clean_names() |>
   mutate(
@@ -38,6 +43,7 @@ ny_noaa_clean |>
 0 is the most frequent number of snowfall. Because in the observed areas, most days of the year are not snowing.
 
 ```{r problem 1 question 2}
+#problem 1 question 2
 temp_summary = ny_noaa_clean |>
   filter(month == 1| month == 7) |>
   group_by(id, month, year) |>
@@ -67,7 +73,7 @@ The plot shows year-to-year fluctuations in average maximum temperature. There a
 
 
 ```{r problem 1 question 3}
-#(i)
+#problem 1 question 3
 p1 = ny_noaa_clean |>
   filter(!is.na(tmax),!is.na(tmin)) |>
   ggplot(aes(x = tmin, y = tmax)) +
@@ -97,15 +103,16 @@ p1 + p2
 ```
 
 ```{r problem 2}
+#problem 2
 #load and merge dataset
 accel_df = read_csv(
-  file = "nhanes_accel.csv",
+  file = "data/nhanes_accel.csv",
   na = c("",".","NA") 
 ) |>
   janitor::clean_names()
 
 covar_df = read_csv(
-  file = "nhanes_covar.csv",
+  file = "data/nhanes_covar.csv",
   na = c("",".","NA"),
   skip = 4
 ) |>
@@ -124,7 +131,21 @@ covar_df = read_csv(
     )
     ) |>
   filter(age >= 21) |>
-  drop_na(bmi, education, age)
+  drop_na(bmi, education, age)  |>
+  mutate(
+    sex = factor(
+      sex,
+      levels = c("male", "female")
+    ),
+    education = factor(
+      education,
+      levels = c(
+        "Less than high school",
+        "High school equivalent",
+        "More than high school"
+      )
+    )
+  )
 
 nhanes_df = covar_df |>
   left_join(accel_df, by = "seqn")
@@ -132,7 +153,7 @@ nhanes_df = covar_df |>
 #create table
 nhanes_df |>
   count(sex, education) |>
-  pivot_wider(
+  pivot_wider(  
     names_from = sex,
     values_from = n
   ) |>
@@ -153,7 +174,8 @@ nhanes_df |>
 ```
 Among male and female participants, more than high school is the category with most people, which have 59 and 56 individuals respectively. The number of men who has high school equivalent diploma is dramatically greater than women. For distributions, high school equivalent participants category has a remarkable difference for female and male, in which male has a much lower median age in this category. For the other two education levels, the distributions of sex are similar generally.
 
-```{r problem 2}
+```{r problem 2 activity plot}
+#problem 2 activity plot
 #plot of total activity
 nhanes_df |>
   mutate(
@@ -172,7 +194,8 @@ nhanes_df |>
 ```
 Total daily activity generally decreases with age across all three education categories. Men tend to have lower activity levels than women in the less than high school and more than high school groups. The more than high school group shows the slowest decline in activity with age.
 
-```{r problem 2}
+```{r problem 2 24 hour activity}
+#problem 2 24 hour activity
 #plot of 24 hour activity
 activity_long = nhanes_df |>
     pivot_longer(
@@ -206,26 +229,27 @@ Across all three education levels, daily activity follows a similar pattern. Act
 Females generally exhibit slightly higher activity levels than males during the day, particularly among individuals with a high school education or less. The less than high school group shows the highest morning activity peak, while the more than high school group maintains relatively stable activity levels throughout the daytime.
 
 ```{r problem 3}
+#problem 3
 Jan2024_df = read_csv(
-  file = "Jan 2024 Citi.csv",
+  file = "data/Jan 2024 Citi.csv",
   na = c("",".","NA")
 ) |>
   janitor::clean_names() 
 
 Jan2020_df = read_csv(
-  file = "Jan 2020 Citi.csv",
+  file = "data/Jan 2020 Citi.csv",
   na = c("",".","NA")
 ) |>
   janitor::clean_names() 
 
 July2020_df = read_csv(
-  file = "July 2020 Citi.csv",
+  file = "data/July 2020 Citi.csv",
   na = c("",".","NA")
 ) |>
   janitor::clean_names() 
 
 July2024_df = read_csv(
-  file = "July 2024 Citi.csv",
+  file = "data/July 2024 Citi.csv",
   na = c("",".","NA")
 ) |>
   janitor::clean_names() 
@@ -298,7 +322,8 @@ plot_1 = citibike_median |>
 ```
 Median ride duration is consistently higher in July than in January across both years. Rides also tend to be longer on weekends than on weekdays, particularly in 2020. Overall, median ride duration decreased from 2020 to 2024, with a more substantial decline in July. Additionally, the gap between January and July narrowed considerably in 2024, suggesting a reduction in seasonal differences in ride duration.
 
-```{r problem 3}
+```{r problem 3 last part}
+#problem 3 last part
 citibike_df |>
   filter(year == 2024) |>
   ggplot(aes(x = month, y = duration, color = member_casual)) +
