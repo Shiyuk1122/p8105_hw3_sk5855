@@ -250,5 +250,55 @@ citibike_df |>
   ) 
 
 #5 most popular starting stations for July 2024
+citibike_df |>
+  filter(year == 2024, month == "July") |>
+  group_by(start_station_name) |>
+  summarise(
+    ride_count = n()
+  ) |>
+  filter(min_rank(desc(ride_count)) <= 5) |>
+  knitr::kable()
+
+#Plot to investigate the effects of day of the week, month, and year on median ride duration
+citibike_median = citibike_df |>
+  group_by(weekdays, year, month) |>
+  summarise(
+    median_dur = median(duration),
+    .groups = "drop"
+  )
+
+citibike_median = citibike_median |>
+  mutate(
+    weekdays = factor(
+      weekdays,
+      levels = c(
+        "Monday", "Tuesday", "Wednesday",
+        "Thursday", "Friday", "Saturday", "Sunday"
+      )
+    )
+  )
+
+plot_1 = citibike_median |>
+  ggplot(aes(x = weekdays, y = median_dur, color = month, group = month)) +
+  geom_point(alpha = 0.4) +
+  geom_line() +
+  facet_grid(.~year) +
+  labs(
+    x = "day of the week",
+    y = "median duration",
+    color = "Month",
+    title = "Median Ride Duration by Weekday, Month, and Year"
+  ) + 
+  theme_minimal() +
+  theme(
+  axis.text.x = element_text(angle = 45, hjust = 1)
+)
+  plot_1
+            
+```
+Median ride duration is consistently higher in July than in January across both years. Rides also tend to be longer on weekends than on weekdays, particularly in 2020. Overall, median ride duration decreased from 2020 to 2024, with a more substantial decline in July. Additionally, the gap between January and July narrowed considerably in 2024, suggesting a reduction in seasonal differences in ride duration.
+
+```{r problem 3}
+
 ```
 
